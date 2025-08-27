@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Home Page</h1>
+<form method="post" action="submit">
+    <input type="text" name="name_vaale">
+    <input type="submit">
+</form>
+
+{% if message %}
+<p> {{ message }}</p>
+{% endif %}
+
+</body>
+</html>
