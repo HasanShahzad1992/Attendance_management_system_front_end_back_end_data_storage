@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+  body{
+    background-color: #f5f7fa;
+    font-family: "Segoe UI","sans-serif";
+    color: #333;
+  }
+  #main_container_id{
+    max-width: 900px;
+    margin:auto;
+    padding:20px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-top: 40px;
+  }
+  h1{
+    text-align: center;
+  }
+  p{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #eaf4ff;
+    padding:10px;
+    border-left:5px solid #007BFF;
+    margin-bottom: 30px;
+  }
+  #button_div_ids{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap:15px;
+  }
+  input.buttons{
+    border-radius: 8px;
+    color: white;
+    padding:12px 20px;
+    background-color: #007BFF;
+    font-size: 16px;
+    border:none;
+  }
+  input.buttons:hover{
+    cursor: pointer;
+    background-color: #0056b3;
+  }
+
+
+  #Submit_manual_button_id:hover, #Submit_bulk_button_id:hover{
+      cursor: pointer;
+      background-color:#0056b3 !important;
+  }
+
+  #div_where_cam_scan_message_to_be_shown_id{
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  table{
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead{
+    background-color: #007BFF;
+    color: white;
+  }
+  th,td{
+    padding:12px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  tbody tr:nth-child(even){
+    background-color: #f9f9f9;
+  }
+  select{
+    width: 200px;
+    height: 40px;
+    padding:8px;
+    border-radius: 5px;
+    border:1px solid #ccc;
+    color:black;
+    font-size: 16px;
+  }
+  #div_where_cam_scanner_placed_id{
+    width: 100%;
+    max-width: 350px;
+    margin:auto;
+    margin-top: 20px;
+  }
+
+</style>
+<script src="https://unpkg.com/html5-qrcode">
+
+</script>
+
+
+
+</head>
+<body>
+
+<div id="main_container_id">
+<h1>
+  Attendance System
+</h1>
+<p>
+  <span>
+    <b>Subject:</b> IT
+  </span>
+  <span>
+   <b>Teacher:</b>  Basit Ali Khan
+  </span>
+</p>
+<div id="button_div_ids">
+  <input type="button" value="Scan QR" id="QR_button_id" class="buttons">
+  <input type="button" value="Manual entry" id="Manual_attendance_id" class="buttons">
+  <input type="button" value="Bulk entry" id="Bulk_attendance_id" class="buttons">
+</div>
+<div id="extra_container_button_clicked">
+
+</div>
+
+</div>
+
+
+
+<script>
+let access_main_container=document.getElementById("main_container_id");
+let access_extra_container=document.getElementById("extra_container_button_clicked");
+
+let access_scan_qr_button=document.getElementById("QR_button_id");
+let access_manual_attendance_button=document.getElementById("Manual_attendance_id");
+let access_bulk_attendance_button=document.getElementById("Bulk_attendance_id");
+
+access_scan_qr_button.addEventListener("click", async function(){
+  access_extra_container.innerHTML="";
+
+  let div_where_cam_scanner_placed=document.createElement("div");
+  div_where_cam_scanner_placed.id="div_where_cam_scanner_placed_id";
+  div_where_cam_scanner_placed.style.width="300px";
+  access_extra_container.append(div_where_cam_scanner_placed);
+
+  let div_where_cam_scan_message_to_be_shown=document.createElement("div");
+  div_where_cam_scan_message_to_be_shown.id="div_where_cam_scan_message_to_be_shown_id"
+  access_extra_container.append(div_where_cam_scan_message_to_be_shown);
+
+  let dict_student_info_time={"student_id_data":null,"time":0};
+  let cool_down_period=3000;
+
+  async function after_scanning_student_id_card(message_from_render_function){
+    let message_string_converted_into_dict=JSON.parse(message_from_render_function);
+    let current_date_time_object =new Date();
+
+
+    let time12 = current_date_time_object.toTimeString().split(" ")[0];
+    let date=current_date_time_object.toISOString().split("T")[0];
+    let time_in_milliseconds=current_date_time_object.getTime();
+
+    let difference_in_time_between_scanning_of_two_cards=time_in_milliseconds-dict_student_info_time["time"];
+    let student_information_from_id_card=dict_student_info_time["student_id_data"];
+
+    if(difference_in_time_between_scanning_of_two_cards<cool_down_period && student_information_from_id_card === message_from_render_function){
+      console.log("too early scanning");
+      return;
+    }
+    else{
+      dict_student_info_time["time"]= time_in_milliseconds;
+      dict_student_info_time["student_id_data"]=message_from_render_function;
+
+
+      console.log("i am in else");
+      let dict_to_be_sent_to_backend={"seccap_id":message_string_converted_into_dict["applied_id"],"time_date_combined":current_date_time_object,"attendance-status":"Present","time_in_12":time12,"date_of_scan":date}
+      let url="http://127.0.0.1:8000/sending_student_data_after_scanning_card"
+      let additional_data={
+        "method":"POST",
+        "headers":{"Content-Type":"application/json"},
+        "body":JSON.stringify(dict_to_be_sent_to_backend)
+      }
+      let response=await fetch(url,additional_data);
+      let json_data=await response.json();
+      console.log(json_data["message"]);
+      div_where_cam_scan_message_to_be_shown.innerHTML=json_data["message"];
+
+    }
+  }
+
+  let cam_scanner_object=new Html5QrcodeScanner("div_where_cam_scanner_placed_id",{qrbox:350,fps:10});
+  cam_scanner_object.render(after_scanning_student_id_card);
+
+
+
+});
+
+access_manual_attendance_button.addEventListener("click",function(){
+    access_extra_container.innerHTML="";
+
+    let current_date_time_object=new Date();
+
+    let time_12_hours=current_date_time_object.toTimeString().split(" ")[0];
+    let date=current_date_time_object.toISOString().split("T")[0];
+    let div_containing_date=document.createElement("div");
+    div_containing_date.innerHTML=" Date: " + date ;
+    div_containing_date.style.textAlign="center";
+    div_containing_date.style.fontWeight="bold";
+    div_containing_date.style.marginTop="20px";
+    access_extra_container.append(div_containing_date);
+
+    let div_containing_heading_manual_entry_heading=document.createElement("div");
+    let heading_manual_entry=document.createElement("h3");
+    heading_manual_entry.innerHTML="Manual Entry (Single Student)";
+    div_containing_heading_manual_entry_heading.append(heading_manual_entry);
+    div_containing_heading_manual_entry_heading.style.textAlign="center";
+    access_extra_container.append(div_containing_heading_manual_entry_heading);
+
+
+
+    let container_holding_extra_input_items_manual=document.createElement("div");
+
+    let student_roll_number_input_box=document.createElement("input");
+    student_roll_number_input_box.style.padding="10px";
+    student_roll_number_input_box.style.width="100%";
+    student_roll_number_input_box.style.maxWidth="300px";
+
+    student_roll_number_input_box.id="student_roll_number_input_box_id"
+    student_roll_number_input_box.placeholder="Enter Student Roll Number";
+    student_roll_number_input_box.type="text";
+
+    let options_dropdown_input=document.createElement("select");
+    options_dropdown_input.style.padding="5px";
+    let present_option=document.createElement("option");
+
+    present_option.value="Present";
+    present_option.innerHTML="Present";
+    options_dropdown_input.append(present_option);
+
+    let absent_option=document.createElement("option");
+    absent_option.value="Absent";
+    absent_option.innerHTML="Absent";
+    options_dropdown_input.append(absent_option);
+
+    let medical_option=document.createElement("option");
+    medical_option.value="Medical Leave";
+    medical_option.innerHTML="Medical Leave";
+    options_dropdown_input.append(medical_option);
+
+    let submit_button_manual_entry=document.createElement("button");
+    submit_button_manual_entry.id="Submit_manual_button_id"
+    submit_button_manual_entry.innerHTML="Submit";
+    submit_button_manual_entry.style.color="white";
+    submit_button_manual_entry.style.padding="12px 20px";
+    submit_button_manual_entry.style.backgroundColor="#007BFF";
+    submit_button_manual_entry.style.fontSize="16px";
+    submit_button_manual_entry.style.borderRadius="8px";
+
+    container_holding_extra_input_items_manual.append(student_roll_number_input_box);
+    container_holding_extra_input_items_manual.append(options_dropdown_input);
+    container_holding_extra_input_items_manual.append(submit_button_manual_entry);
+
+    container_holding_extra_input_items_manual.style.display="flex";
+    container_holding_extra_input_items_manual.style.textAlign="center";
+    container_holding_extra_input_items_manual.style.justifyContent="space-between";
+    container_holding_extra_input_items_manual.style.alignItems="center";
+
+
+    access_extra_container.append(div_containing_heading_manual_entry_heading);
+    access_extra_container.append(container_holding_extra_input_items_manual);
+
+
+  submit_button_manual_entry.addEventListener("click",async function(){
+    let seccap_id_entered_by_teacher=student_roll_number_input_box.value;
+    let attendance_of_student_marked_by_teacher=options_dropdown_input.value;
+
+    let dict_to_be_sent_to_backend={"date_of_marking_attendance":date,"time_at_which_attendance_marked":time_12_hours,"seccap_id":seccap_id_entered_by_teacher,"attendance_status":attendance_of_student_marked_by_teacher,"time_and_date_combined":current_date_time_object}
+    console.log(dict_to_be_sent_to_backend);
+    let url="http://127.0.0.1:8000/marking_individual_attendance_of_student";
+    let additional_data={
+      "method":"POST",
+      "header":{"Content-Type":"application/json"},
+      "body":JSON.stringify(dict_to_be_sent_to_backend)
+    }
+    let response=await fetch(url,additional_data);
+    let json_data=await response.json();
+
+    let create_new_div_for_showing_result_status=document.createElement("div");
+    create_new_div_for_showing_result_status.innerHTML=json_data["message"];
+    create_new_div_for_showing_result_status.style.marginTop="10px";
+    access_extra_container.append(create_new_div_for_showing_result_status);
+  });
+
+
+
+
+
+
+
+});
+
+access_bulk_attendance_button.addEventListener("click",async function(){
+  access_extra_container.innerHTML="";
+  let create_div_bulk_attendance_heading=document.createElement("div");
+  let create_heading=document.createElement("h3");
+  create_heading.innerHTML="Bulk Attendance Entry";
+  create_div_bulk_attendance_heading.append(create_heading);
+  create_div_bulk_attendance_heading.style.textAlign="center";
+
+
+
+
+
+
+
+  let create_div_holding_date=document.createElement("div");
+  let current_date_time_object=new Date();
+
+  let current_date=current_date_time_object.toISOString().split("T")[0];
+  create_div_holding_date.innerHTML="Date:" + current_date;
+  create_div_holding_date.style.fontWeight="bold";
+  create_div_holding_date.style.display="flex";
+  create_div_holding_date.style.justifyContent="center";
+  create_div_holding_date.style.alignItems="center";
+  create_div_holding_date.style.marginBottom="20px";
+
+
+  access_extra_container.append(create_div_bulk_attendance_heading);
+  access_extra_container.append(create_div_holding_date);
+
+  let url=" http://127.0.0.1:8000/all_student_data_after_clicking_bulk_button"
+  let response=await fetch(url);
+  let json_data=await response.json();
+  let list_of_all_student_data=json_data["data_of_all_students"];
+  console.log(list_of_all_student_data);
+  let length_of_json_data_student=list_of_all_student_data.length;
+
+  let table_bulk_attendance=document.createElement("table");
+
+  let thead_table=document.createElement("thead");
+  let thead_tr=document.createElement("tr");
+
+  let list_of_column_names=["Seccap_Id","Student_Name","Attendance_Status"];
+  for(let i=0;i<list_of_column_names.length;i=i+1){
+    let thead_th=document.createElement("th");
+    thead_th.innerHTML=list_of_column_names[i];
+    thead_tr.append(thead_th);
+  }
+  thead_table.append(thead_tr);
+  table_bulk_attendance.append(thead_table);
+  access_extra_container.append(table_bulk_attendance);
+
+  let list_of_data_relevant_to_json=["Seccap_id","Name"]
+  let tbody_table=document.createElement("tbody");
+  for(let i=0;i<length_of_json_data_student;i=i+1){
+    let tbody_tr=document.createElement("tr");
+    for(let j=0;j<3;j=j+1){
+      let tbody_td=document.createElement("td");
+      if(j<2){
+        tbody_td.innerHTML=list_of_all_student_data[i][list_of_data_relevant_to_json[j]];
+      }
+      else{
+        let create_select_element=document.createElement("select");
+        create_select_element.name="Attendance_status";
+
+
+        let create_option_present=document.createElement("option");
+        create_option_present.value="Present";
+        create_option_present.selected=true;
+        create_option_present.innerHTML="Present";
+        create_select_element.append(create_option_present);
+
+        let create_option_absent=document.createElement("option");
+        create_option_absent.value="Absent";
+        create_option_absent.innerHTML="Absent";
+        create_select_element.append(create_option_absent);
+
+
+        let create_option_medical=document.createElement("option");
+        create_option_medical.value="Medical Leave";
+        create_option_medical.innerHTML="Medical Leave";
+        create_select_element.append(create_option_medical);
+
+        tbody_td.append(create_select_element);
+      }
+      tbody_tr.append(tbody_td);
+    }
+    tbody_table.append(tbody_tr);
+  }
+  table_bulk_attendance.append(tbody_table);
+
+  let create_div_for_putting_submit_attendance_button=document.createElement("div");
+  let create_submit_bulk_attendance_button=document.createElement("input");
+  create_submit_bulk_attendance_button.id="Submit_bulk_button_id";
+  create_submit_bulk_attendance_button.type="button";
+  create_submit_bulk_attendance_button.value="Submit";
+  create_submit_bulk_attendance_button.style.color="white";
+  create_submit_bulk_attendance_button.style.padding="12px 20px";
+  create_submit_bulk_attendance_button.style.backgroundColor="#007BFF";
+  create_submit_bulk_attendance_button.style.fontSize="16px";
+  create_submit_bulk_attendance_button.style.borderRadius="8px";
+
+  create_div_for_putting_submit_attendance_button.append(create_submit_bulk_attendance_button);
+  create_div_for_putting_submit_attendance_button.style.display="flex";
+  create_div_for_putting_submit_attendance_button.style.justifyContent="center";
+  create_div_for_putting_submit_attendance_button.style.alignItems="center";
+  access_extra_container.append(table_bulk_attendance);
+  access_extra_container.append(create_div_for_putting_submit_attendance_button);
+
+
+
+  create_submit_bulk_attendance_button.addEventListener("click",async function(){
+      let create_list_which_would_hold_dictionaries_containing_seccap_id_and_attendance_status_date_and_time=[]
+
+      let list_of_trs=tbody_table.getElementsByTagName("tr");
+      let date_time_object=new Date();
+      let count=0
+      for(let i=0;i<list_of_trs.length;i=i+1){
+          let create_empty_dictionary={};
+          let time_12_hours=current_date_time_object.toTimeString().split(" ")[0];
+          let date=current_date_time_object.toISOString().split("T")[0];
+          let seccap_id_of_student_key=list_of_trs[i].getElementsByTagName("td")[0].innerHTML;
+          let attendance_status_of_student=list_of_trs[i].getElementsByTagName("td")[2].getElementsByTagName("select")[0].value;
+          let time_stamp_of_when_attendance_taken=date_time_object
+          if((attendance_status_of_student) ==="Present"){
+              count=count+1
+              create_empty_dictionary["attendance_status_of_student"]=attendance_status_of_student;
+              create_empty_dictionary["time_attendance"]=time_12_hours;
+              create_empty_dictionary["date_attendance"]=date
+              create_empty_dictionary["seccap_Id"]=seccap_id_of_student_key;
+              create_empty_dictionary["attendance_time_stamp"]=time_stamp_of_when_attendance_taken;
+              create_list_which_would_hold_dictionaries_containing_seccap_id_and_attendance_status_date_and_time.push(create_empty_dictionary);
+          }
+      }
+      console.log(count)
+
+      let url="http://127.0.0.1:8000/sending_attendance_of_class_in_bulk";
+      let dict_to_be_sent_to_backend={"list_holding_dictionaries":create_list_which_would_hold_dictionaries_containing_seccap_id_and_attendance_status_date_and_time};
+      let additional_data_to_be_sent_to_backend={
+          "method":"POST",
+          "headers":{"Content-Type":"application/json"},
+          "body":JSON.stringify(dict_to_be_sent_to_backend)
+      }
+      let response=await fetch(url,additional_data_to_be_sent_to_backend);
+      let json_data=await response.json();
+
+      console.log(json_data["message"]);
+
+  });
+
+
+
+
+});
+</script>
+</body>
+</html>
