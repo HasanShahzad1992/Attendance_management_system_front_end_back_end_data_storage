@@ -1,111 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<style>
-  body{
-    background-color: #f5f7fa;
-    font-family: "Segoe UI","sans-serif";
-    color: #333;
-  }
-  #main_container_id{
-    max-width: 900px;
-    margin:auto;
-    padding:20px;
-    border-radius: 10px;
-    background: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    margin-top: 40px;
-  }
-  h1{
-    text-align: center;
-  }
-  p{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #eaf4ff;
-    padding:10px;
-    border-left:5px solid #007BFF;
-    margin-bottom: 30px;
-  }
-  #button_div_ids{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap:15px;
-  }
-  input.buttons{
-    border-radius: 8px;
-    color: white;
-    padding:12px 20px;
-    background-color: #007BFF;
-    font-size: 16px;
-    border:none;
-  }
-  input.buttons:hover{
-    cursor: pointer;
-    background-color: #0056b3;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    <style>
+   
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #f5f7fa;
+            font-family: "Segoe UI", sans-serif;
+            color: #333;
+        }
+        #main_container_id {
+            max-width: 1100px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-top: 40px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #007BFF;
+        }
+        p {
+            display: flex;
+            justify-content: space-between;
+            background-color: #eaf4ff;
+            padding: 12px 18px;
+            border-left: 5px solid #007BFF;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            flex-wrap: wrap;
+        }
+
+ 
+        #button_div_ids {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        input.buttons {
+            border-radius: 8px;
+            color: white;
+            padding: 14px 28px;
+            background-color: #007BFF;
+            font-size: 16px;
+            border: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        input.buttons:hover {
+            cursor: pointer;
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        #Submit_manual_button_id:hover {
+            background-color: #28a745 !important;
+        }
+
+    
+        #extra_container_button_clicked {
+            margin-top: 20px;
+        }
+
+   
+        .manual-entry-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            max-width: 500px;
+            margin: auto;
+        }
+        .manual-entry-container input, .manual-entry-container select {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .manual-entry-container input[type="button"] {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .manual-entry-container input[type="button"]:hover {
+            background-color: #0056b3;
+        }
 
 
-  #Submit_manual_button_id:hover, #Submit_bulk_button_id:hover{
-      cursor: pointer;
-      background-color:#0056b3 !important;
-  }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        thead {
+            background-color: #007BFF;
+            color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
 
-  #div_where_cam_scan_message_to_be_shown_id{
-    padding: 14px 18px;
-    border-radius: 8px;
-    margin: 20px 0;
-    font-size: 15px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  table{
-    width: 100%;
-    border-collapse: collapse;
-  }
-  thead{
-    background-color: #007BFF;
-    color: white;
-  }
-  th,td{
-    padding:12px;
-    border: 1px solid #ddd;
-    text-align: center;
-  }
-  tbody tr:nth-child(even){
-    background-color: #f9f9f9;
-  }
-  select{
-    width: 200px;
-    height: 40px;
-    padding:8px;
-    border-radius: 5px;
-    border:1px solid #ccc;
-    color:black;
-    font-size: 16px;
-  }
-  #div_where_cam_scanner_placed_id{
-    width: 100%;
-    max-width: 350px;
-    margin:auto;
-    margin-top: 20px;
-  }
+  
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
 
-</style>
-<script src="https://unpkg.com/html5-qrcode">
+  
+        #div_where_cam_scanner_placed_id {
+            width: 100% !important;
+            max-width: 350px;
+            margin: auto;
+            display: block;
+        }
 
-</script>
+        #div_where_cam_scan_message_to_be_shown_id {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eaf4ff;
+            color: #007BFF;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            animation: fadeIn 0.3s ease-in-out;
+        }
 
+        
+        .submit-bulk-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .submit-bulk-container input {
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            background-color: #28a745;
+            color: white;
+            font-weight: 500;
+            border: none;
+            transition: 0.3s;
+        }
+        .submit-bulk-container input:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
 
+    
+        @media (max-width: 768px) {
+            p {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+            input.buttons {
+                width: 100%;
+                max-width: 250px;
+            }
+            .manual-entry-container {
+                width: 90%;
+            }
+        }
 
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+    </style>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
