@@ -276,7 +276,7 @@ access_scan_qr_button.addEventListener("click", async function(){
 
       console.log("i am in else");
       let dict_to_be_sent_to_backend={"seccap_id":message_string_converted_into_dict["applied_id"],"time_date_combined":current_date_time_object,"attendance-status":"Present","time_in_12":time12,"date_of_scan":date}
-      let url="http://127.0.0.1:8000/sending_student_data_after_scanning_card"
+      let url="https://fa0362d0-75b3-42c6-bfb7-bec0aaad3d1e-00-zn408blebfj5.kirk.replit.dev/sending_student_data_after_scanning_card"
       let additional_data={
         "method":"POST",
         "headers":{"Content-Type":"application/json"},
@@ -378,7 +378,7 @@ access_manual_attendance_button.addEventListener("click",function(){
 
     let dict_to_be_sent_to_backend={"date_of_marking_attendance":date,"time_at_which_attendance_marked":time_12_hours,"seccap_id":seccap_id_entered_by_teacher,"attendance_status":attendance_of_student_marked_by_teacher,"time_and_date_combined":current_date_time_object}
     console.log(dict_to_be_sent_to_backend);
-    let url="http://127.0.0.1:8000/marking_individual_attendance_of_student";
+    let url="https://fa0362d0-75b3-42c6-bfb7-bec0aaad3d1e-00-zn408blebfj5.kirk.replit.dev/marking_individual_attendance_of_student";
     let additional_data={
       "method":"POST",
       "header":{"Content-Type":"application/json"},
@@ -430,7 +430,7 @@ access_bulk_attendance_button.addEventListener("click",async function(){
   access_extra_container.append(create_div_bulk_attendance_heading);
   access_extra_container.append(create_div_holding_date);
 
-  let url=" http://127.0.0.1:8000/all_student_data_after_clicking_bulk_button"
+  let url="https://fa0362d0-75b3-42c6-bfb7-bec0aaad3d1e-00-zn408blebfj5.kirk.replit.dev/all_student_data_after_clicking_bulk_button"
   let response=await fetch(url);
   let json_data=await response.json();
   let list_of_all_student_data=json_data["data_of_all_students"];
@@ -536,7 +536,7 @@ access_bulk_attendance_button.addEventListener("click",async function(){
       }
       console.log(count)
 
-      let url="http://127.0.0.1:8000/sending_attendance_of_class_in_bulk";
+      let url="https://fa0362d0-75b3-42c6-bfb7-bec0aaad3d1e-00-zn408blebfj5.kirk.replit.dev/sending_attendance_of_class_in_bulk";
       let dict_to_be_sent_to_backend={"list_holding_dictionaries":create_list_which_would_hold_dictionaries_containing_seccap_id_and_attendance_status_date_and_time};
       let additional_data_to_be_sent_to_backend={
           "method":"POST",
